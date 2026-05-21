@@ -23,13 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Fetch latest /v3/languages responses
+      - name: Fetch latest /v3/languages responses and refresh snippet
         env:
           DEEPL_AUTH_KEY: ${{ secrets.DEEPL_API_KEY }}
         run: python3 scripts/fetch_v3_languages.py
-
-      - name: Regenerate snippets/language-table.jsx from vended data
-        run: python3 scripts/generate_language_table.py
 
       - name: Open or update refresh PR
         uses: peter-evans/create-pull-request@v6
@@ -40,7 +37,7 @@ jobs:
           title: "chore(v3-languages): refresh vended responses"
           body: |
             Automated refresh of `data/v3-languages/` from `https://api.deepl.com/v3/languages`,
-            with `snippets/language-table.jsx` regenerated from the new responses. Opened by
+            with `snippets/supported-languages.jsx` regenerated from the new responses. Opened by
             the `refresh-v3-languages` workflow.
 
             This PR is rewritten in place on each run: if the vended responses change again
@@ -51,6 +48,6 @@ jobs:
             closed and the branch deleted automatically.
           add-paths: |
             data/v3-languages/**
-            snippets/language-table.jsx
+            snippets/supported-languages.jsx
           delete-branch: true
           labels: automated, v3-languages
