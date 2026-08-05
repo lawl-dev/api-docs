@@ -181,6 +181,24 @@ This runs editorial and Diataxis reviews in parallel, deduplicates findings, and
 - Navigation structure is defined in `docs.json` — update it when adding or moving pages
 - Snippet files in `snippets/` can be reused across pages with Mintlify's snippet syntax
 
+## API Reference Conventions (openapi.yaml)
+
+- `api-reference/openapi.json` is generated — after ANY `openapi.yaml` change run:
+  `yq -o=json '.' api-reference/openapi.yaml > api-reference/openapi.json`
+  and commit both files.
+- **Numeric limits live in one place**: the product requirements page (e.g. Voice →
+  `docs/voice/voice-api-requirements.mdx` "Session limits"). Field descriptions stay
+  qualitative and link there; do not encode limits as `maxItems`/`maximum` in the
+  schema (pattern: `target_languages` documents its max only on the requirements page).
+- **Document the error path** when adding a validated request field: which invalid
+  inputs are rejected, with what status code, and when (e.g. "400 before a session is
+  created").
+- **Deprecation needs a product decision.** Never add `deprecated: true` or
+  "Deprecated" wording to an existing field as part of documenting its successor —
+  write "For new integrations we recommend `<new field>`" instead.
+- **Guide and overview pages don't name API fields** — product capability language
+  only; field names belong on the reference pages.
+
 ## Local Development
 
     npm i -g mint
