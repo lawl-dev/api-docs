@@ -13,7 +13,7 @@ public: true
 
 ## What custom reporting tags are for
 
-Custom reporting tags let your organization attribute API usage to a team, project, customer, or any other category you care about. You attach a tag to each translate request, and the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) endpoint reports usage broken down by those tags.
+Custom reporting tags let your organization attribute API usage to a team, project, customer, or any other category you care about. You attach a tag to each translate request, and you can then retrieve usage broken down by those tags in two ways: programmatically via the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) endpoint, or as a [custom tag-level CSV export](/docs/admin/retrieving-usage-data#csv-export) from the account UI.
 
 Common use cases:
 
@@ -93,6 +93,6 @@ Tags are a reporting feature only. You cannot use them to enforce limits, quotas
 ## Next steps
 
 - **Use the client libraries:** See [Sending Custom Reporting Tags with Client Libraries](/docs/learning-how-tos/cookbook/sending-custom-reporting-tags-from-client-libraries) for code snippets in Python, Node.js, Java, .NET, and PHP.
-- **Query your tagged usage:** See the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) reference for date ranges, aggregation options, and pagination.
+- **Query your tagged usage:** See the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) reference for date ranges, aggregation options, and pagination, or download a [custom tag-level CSV export](/docs/admin/retrieving-usage-data#csv-export) from the account UI.
 - **Get the bigger picture:** Read the [usage data guide](/docs/admin/retrieving-usage-data) to understand how custom-tag reporting fits alongside the other usage data sources.
 - **Explore other optional translate parameters:** Learn [how to use the context parameter](/docs/learning-how-tos/examples-and-guides/how-to-use-context-parameter) to improve translation accuracy for ambiguous content.
