@@ -1,0 +1,205 @@
+---
+title: "Using Adaptive Translation (Alpha)"
+description: "Learn how to adapt translations to your own style, tone, and terminology by sending example translations with your request"
+covers: [Customize]
+---
+
+<Danger>
+    **Alpha feature.** Adaptive translation is not intended for production use. The `example_translations` parameter has a higher rate of change than production features, and its name and structure may change without notice. Reliability and error rate thresholds are lower than for production features. See [Alpha and beta features](/docs/resources/alpha-and-beta-features), and report anything that looks wrong to your DeepL representative.
+</Danger>
+
+## About adaptive translation
+
+Adaptive translation applies your preferred style, tone, and terminology by learning from translations you have already approved. You send example translations, each a source text paired with its accepted translation, alongside the text you want translated. The model infers your preferences from the examples and generalizes to sentences the examples do not cover.
+
+Unlike a [glossary](/docs/customize/glossaries-in-the-real-world) or a [style rule](/docs/customize/using-style-rules), you do not describe what you want. You show it.
+
+Examples are supplied inline with each request and are not stored by DeepL, so every request that should benefit from them has to carry them again. For preferences you want stored and reused, see [Using translation memories](/docs/customize/using-translation-memories).
+
+## What you'll learn
+
+In this tutorial, we'll adapt a translation to preferred terminology, adapt another to a preferred style, and then see what it looks like when adaptation does not take effect.
+
+## Before you begin
+
+You'll need:
+
+- A DeepL API authentication key for an account with adaptive translation enabled. Access is granted per account, so ask your DeepL representative to enable it.
+- A terminal or HTTP client that can send a JSON request body
+- Approximately 10 minutes
+
+### Language support
+
+Adaptation is validated for English paired with German, Spanish, French, or Italian, in either direction. Coverage will be extended in a future update.
+
+<Warning>
+    Only send `example_translations` for a validated language pair, and make sure your examples use the same source and target languages as the request. Otherwise the results are unpredictable: adaptation may be weak, the examples may be ignored, or the text may come back in a language you did not ask for.
+</Warning>
+
+### Request format
+
+`example_translations` is supported on [`POST /v2/translate`](/api-reference/translate/request-translation) only, and must be sent in a JSON body. It is ignored in form-encoded requests.
+
+## Step 1: Adapt terminology
+
+Let's say your organization always translates the German "Kunde" as "client" rather than "customer". Send a few segments where you have already made that choice, using the `example_translations` parameter on the [text translation endpoint](/api-reference/translate/request-translation).
+
+```sh
+curl -X POST 'https://api.deepl.com/v2/translate' \
+--header 'Authorization: DeepL-Auth-Key [yourAuthKey]' \
+--header 'Content-Type: application/json' \
+--data '{
+  "text": [
+    "Unsere Kunden sind mit dem neuen Produkt sehr zufrieden, und wir erwarten nächstes Jahr noch viele weitere Kunden."
+  ],
+  "source_lang": "DE",
+  "target_lang": "EN-US",
+  "example_translations": [
+    {
+      "source_text": "Der Kunde hat gestern den Vertrag unterschrieben.",
+      "target_text": "The client signed the contract yesterday."
+    },
+    {
+      "source_text": "Wir schätzen jeden einzelnen Kunden.",
+      "target_text": "We value every single client."
+    },
+    {
+      "source_text": "Bitte kontaktieren Sie den Kunden direkt.",
+      "target_text": "Please contact the client directly."
+    }
+  ]
+}'
+```
+
+**Expected output:**
+
+```json
+{
+  "translations": [
+    {
+      "text": "Our clients are very satisfied with the new product, and we expect to gain many more clients next year.",
+      "detected_source_language": "DE"
+    }
+  ]
+}
+```
+
+Both occurrences come back as "clients". Send the same request without `example_translations` and you'll get "customers" instead, which is DeepL's default choice for this text.
+
+Notice that none of the examples contain the sentence we translated. The examples establish the preference, and the model applies it to new text.
+
+## Step 2: Adapt style and tone
+
+Adaptation is not limited to individual terms. These examples establish gender-neutral German forms, without saying anything about which nouns they apply to.
+
+```sh
+curl -X POST 'https://api.deepl.com/v2/translate' \
+--header 'Authorization: DeepL-Auth-Key [yourAuthKey]' \
+--header 'Content-Type: application/json' \
+--data '{
+  "text": [
+    "Please remind the customers and the new employees about the briefing session scheduled for tomorrow."
+  ],
+  "source_lang": "EN",
+  "target_lang": "DE",
+  "example_translations": [
+    {
+      "source_text": "Our customers are important to us.",
+      "target_text": "Unsere Kund:innen sind uns wichtig."
+    },
+    {
+      "source_text": "All users must log in first.",
+      "target_text": "Alle Nutzer:innen müssen sich zuerst anmelden."
+    }
+  ]
+}'
+```
+
+**Expected output:**
+
+```json
+{
+  "translations": [
+    {
+      "text": "Bitte erinnern Sie die Kund:innen und die neuen Mitarbeiter:innen an die für morgen geplante Einführungsveranstaltung.",
+      "detected_source_language": "EN"
+    }
+  ]
+}
+```
+
+Without the examples, the same request returns "Kunden" and "Mitarbeiter". No example covers "employees", so "Mitarbeiter:innen" is generalized from the pattern in the examples rather than copied from one.
+
+## Step 3: Recognize when adaptation does not take effect
+
+Adaptation is best effort, and nothing in the response tells you whether it happened. Send the terminology request from Step 1 again, this time with only the first example:
+
+```sh
+curl -X POST 'https://api.deepl.com/v2/translate' \
+--header 'Authorization: DeepL-Auth-Key [yourAuthKey]' \
+--header 'Content-Type: application/json' \
+--data '{
+  "text": [
+    "Unsere Kunden sind mit dem neuen Produkt sehr zufrieden."
+  ],
+  "source_lang": "DE",
+  "target_lang": "EN-US",
+  "example_translations": [
+    {
+      "source_text": "Der Kunde hat gestern den Vertrag unterschrieben.",
+      "target_text": "The client signed the contract yesterday."
+    }
+  ]
+}'
+```
+
+**Expected output:**
+
+```json
+{
+  "translations": [
+    {
+      "text": "Our customers are very satisfied with the new product.",
+      "detected_source_language": "DE"
+    }
+  ]
+}
+```
+
+The response is a normal `200` with an unadapted translation: "customers", not "clients". Adaptation is best effort, so it will sometimes leave a translation unchanged. Here, one example was not enough to establish the preference.
+
+To make a preference more likely to be picked up:
+
+- Send several examples that cover the same preference, not one
+- Send whole segments rather than term pairs. For individual terms that must always be translated the same way, use a [glossary](/docs/customize/glossaries-in-the-real-world) instead.
+- Keep the examples consistent. Examples that translate the same term differently give the model conflicting signals.
+
+If a preference still doesn't come through and you want to report it, send the same request without `example_translations` and include both results. That tells us whether the model declined to adapt or the examples never reached it, which is the difference between a quality issue and an integration issue.
+
+## Limits and errors
+
+| **Limit** | **Value** |
+| --- | --- |
+| Examples per request | 10 |
+| Characters per `source_text` or `target_text` | 300 |
+
+| **Status** | **Message** | **Cause** |
+| --- | --- | --- |
+| 400 | `Bad request. Reason: example_translations is not enabled for this account.` | The account does not have access to the alpha feature |
+| 400 | `Bad request. Reason: A maximum of 10 example_translations entries can be specified per request.` | More than 10 examples were sent |
+| 400 | `Bad request. Reason: Each 'example_translations' source_text/target_text must be at most 300 characters.` | An example exceeds the character limit |
+
+## What you've accomplished
+
+You've learned how to:
+
+- Adapt a translation to your preferred terminology with example translations
+- Adapt style and tone, including for wording the examples don't cover
+- Recognize when adaptation didn't take effect, and verify results against a baseline request
+
+## See also
+
+- [Text translation endpoint](/api-reference/translate/request-translation): parameter reference
+- [Alpha and beta features](/docs/resources/alpha-and-beta-features): what alpha means for stability and support
+- [Using translation memories](/docs/customize/using-translation-memories): reuse stored translations instead of sending examples per request
+- [Supported languages](/docs/getting-started/supported-languages): all languages DeepL translates
