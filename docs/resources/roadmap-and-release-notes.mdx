@@ -10,6 +10,11 @@ rss: true
 </Update>
 
 <Update label="August 2026">
+## August 18 - Custom Reporting Tags for the Voice API
+- [Custom reporting tags](/docs/learning-how-tos/examples-and-guides/how-to-use-custom-reporting-tags) now work for the [Voice API](/docs/voice/overview) in addition to text translation. Send the `X-DeepL-Reporting-Tag` header on the [session request](/api-reference/voice/request-session) and the whole session's usage is attributed to that tag.
+- The [custom tag usage analytics endpoint](/api-reference/admin-api/get-custom-tag-usage-analytics) reports voice usage as `speech_to_text_minutes` and `speech_to_speech_minutes` alongside the existing character fields. Voice minutes are not included in `total_characters`.
+- A tag can only be set on the session request, since the WebSocket connection carries no headers. To attribute audio to more than one tag, open a separate session per tag.
+
 ## August 11 - Translation Memory Management API
 - You can now create, inspect, export, and delete [translation memories](/docs/customize/using-translation-memories) through the API. Translation memories store previously translated segments so the same source text produces consistent output across projects. Previously, the API could only list the translation memories on your account, and everything else had to be done in the DeepL UI.
 - [`POST /v3/translation_memories/import`](/api-reference/translation-memory/import-a-translation-memory) creates a translation memory from a TMX file. The request declares the file and returns a signed upload URL plus a `job_id`; you upload the file to that URL and poll the job for the new `translation_memory_id`.
