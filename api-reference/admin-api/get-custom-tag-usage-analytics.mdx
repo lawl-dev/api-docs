@@ -39,17 +39,16 @@ Each entry in `usage` includes:
 
 | **Field** | **Description** |
 |:---|:---|
-| `total_characters` | Combined character usage across all services |
+| `total_characters` | Combined character usage across character-based services |
 | `text_translation_characters` | Characters used for text translation |
 | `text_improvement_characters` | Characters used for text improvement (rephrasing) |
-| `speech_to_text_minutes` | Minutes of speech-to-text usage |
-| `speech_to_speech_minutes` | Minutes of speech-to-speech usage |
+| `speech_to_text_minutes` | Minutes of speech-to-text usage. Fractional values are returned, for example `12.5` |
+| `speech_to_speech_minutes` | Minutes of speech-to-speech usage. Fractional values are returned, for example `4.2` |
 
-Voice usage is reported in minutes and is not included in `total_characters`, which
-covers character-based services only.
+Voice usage is reported in minutes and is not included in `total_characters`, which covers character-based services only.
 
 <Warning>
-Custom tag data is recorded for text translation and Voice API requests. Support for other request types will be added in a future update.
+Custom tag data is recorded only for text translation and Voice API requests. Support for other request types will be added in a future update.
 </Warning>
 
 ## Pagination

@@ -1,12 +1,12 @@
 ---
 title: "How to Use Custom Reporting Tags"
-description: "Learn how to attach reporting tags to translate and Voice API requests so you can break down usage by team, project, or category."
+description: "Learn how to attach reporting tags to text translation and Voice API requests so you can break down usage by team, project, or category."
 public: true
 ---
 
 **This guide shows you:**
 - When to use custom reporting tags
-- How to attach a tag to a translate or Voice API request via the `X-DeepL-Reporting-Tag` header
+- How to attach a tag to a text translation or Voice API request via the `X-DeepL-Reporting-Tag` header
 - Tag naming guidance and current limitations
 
 ---
@@ -23,7 +23,7 @@ Common use cases:
 Only tagged requests appear in custom-tag reports, so tag every request you want to track.
 
 <Warning>
-Custom tag data is recorded for text translation and Voice API requests. Support for additional request types will be added in a future update.
+Custom tag data is recorded only for text translation and Voice API requests. Support for additional request types will be added in a future update.
 </Warning>
 
 ---
@@ -76,7 +76,17 @@ curl --request POST 'https://api.deepl.com/v3/voice/realtime' \
 }'
 ```
 
-The WebSocket connection itself carries no headers, so the session request is the only place a tag can be set. You cannot change or add a tag once a session is running, and you cannot tag individual utterances within a session — to attribute audio to more than one tag, open a separate session per tag.
+**Sample response:**
+
+```json
+{
+  "streaming_url": "wss://api.deepl.com/v3/voice/realtime/connect",
+  "token": "VGhpcyBpcyBhIGZha2UgdG9rZW4K",
+  "session_id": "4f911080-cfe2-41d4-8269-0e6ec15a0354"
+}
+```
+
+The WebSocket connection itself carries no headers, so the session request is the only place a tag can be set. You cannot change or add a tag once a session is running, and you cannot tag individual audio chunks within a session. To attribute audio to more than one tag, open a separate session per tag.
 
 ---
 
@@ -106,6 +116,7 @@ Tags are a reporting feature only. You cannot use them to enforce limits, quotas
 - Tag values are limited to 100 characters. Requests with longer values are rejected with a 400 response.
 - Tag values must use ASCII characters only, with no internal whitespace and no control characters. Values like `sample tag`, `sample-tág`, or `sample\ntag` are rejected with a 400 response. Leading and trailing whitespace is trimmed before validation (see [Tag naming guidance](#tag-naming-guidance)).
 - Each request accepts one tag. Sending multiple values in the header is not supported.
+- For the Voice API, a tag covers a whole session and can only be set on the session request. See [How to tag a Voice API session](#how-to-tag-a-voice-api-session).
 - Untagged requests are not included in custom-tag analytics. They still count toward your overall usage, which you can retrieve through the [Get usage analytics](/api-reference/admin-api/get-usage-analytics) endpoint.
 
 ---

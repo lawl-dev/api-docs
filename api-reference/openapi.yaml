@@ -4662,15 +4662,10 @@ components:
       required: false
       description: >
         An optional custom reporting tag used to attribute this request's usage to a
-        team, project, customer, or other category of your choosing. Tags require no
-        registration before use. Usage broken down by tag is available from the
-        [custom tag usage analytics
-        endpoint](/api-reference/admin-api/get-custom-tag-usage-analytics) and as a
-        custom tag-level CSV export. Values are limited to 100 characters and must be
-        ASCII with no internal whitespace and no control characters; longer or
-        otherwise invalid values are rejected with a 400 response. Leading and
-        trailing whitespace is trimmed and the value is lowercased before storage. One
-        tag per request; untagged requests do not appear in custom-tag reports.
+        team, project, customer, or other category of your choosing. Values are
+        limited to 100 characters. See [How to use custom reporting
+        tags](/docs/learning-how-tos/examples-and-guides/how-to-use-custom-reporting-tags)
+        for validation rules, naming guidance, and how to retrieve usage by tag.
       schema:
         type: string
         maxLength: 100
@@ -7784,7 +7779,9 @@ components:
       properties:
         total_characters:
           type: integer
-          description: Total number of characters used.
+          description: >
+            Total number of characters used across character-based services. Voice
+            usage is reported in minutes and is not included in this total.
           example: 380
         text_translation_characters:
           type: integer

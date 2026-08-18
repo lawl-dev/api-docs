@@ -9,7 +9,7 @@ This page explains the lifecycle of a Voice API session: how a connection is est
 
 Every Voice API session starts with two steps:
 
-1. [Request a session](/api-reference/voice/request-session) with a POST request to `/v3/voice/realtime`. This is where authentication happens and where you fix the session's configuration: audio formats, source and target languages, glossaries, spoken terms, and [message encoding](/docs/voice/message-encoding). The response contains an ephemeral streaming URL and a token, both valid for one-time use.
+1. [Request a session](/api-reference/voice/request-session) with a POST request to `/v3/voice/realtime`. This is where authentication happens and where you fix the session's configuration: audio formats, source and target languages, glossaries, spoken terms, [message encoding](/docs/voice/message-encoding), and an optional [custom reporting tag](/docs/learning-how-tos/examples-and-guides/how-to-use-custom-reporting-tags). The response contains an ephemeral streaming URL and a token, both valid for one-time use.
 2. [Open a WebSocket connection](/api-reference/voice/websocket-streaming) to the streaming URL, passing the token as a query parameter. All audio and results are exchanged as messages over this connection.
 
 Splitting setup from streaming keeps your API key out of the WebSocket handshake and settles all configuration before any audio flows. The WebSocket itself carries only audio and results.
