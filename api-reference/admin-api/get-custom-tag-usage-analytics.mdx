@@ -33,18 +33,22 @@ The response contains a `custom_tag_usage_report` object with the following fiel
 Each entry in `usage` includes:
 - `custom_tag`: the tag identifier
 - `usage_date`: the day the usage was recorded (ISO 8601 datetime). Only returned when `aggregate_by` is `day`
-- `breakdown`: character counts split by service type
+- `breakdown`: usage split by service type
 
 ### Usage breakdown
 
 | **Field** | **Description** |
 |:---|:---|
-| `total_characters` | Combined character usage across all services |
+| `total_characters` | Combined character usage across character-based services |
 | `text_translation_characters` | Characters used for text translation |
 | `text_improvement_characters` | Characters used for text improvement (rephrasing) |
+| `speech_to_text_minutes` | Minutes of speech-to-text usage. Fractional values are returned, for example `12.5` |
+| `speech_to_speech_minutes` | Minutes of speech-to-speech usage. Fractional values are returned, for example `4.2` |
+
+Voice usage is reported in minutes and is not included in `total_characters`, which covers character-based services only.
 
 <Warning>
-Custom tag data is supported only for text translation. Support for other request types will be added in a future update.
+Custom tag data is recorded only for text translation and Voice API requests. Support for other request types will be added in a future update.
 </Warning>
 
 ## Pagination
