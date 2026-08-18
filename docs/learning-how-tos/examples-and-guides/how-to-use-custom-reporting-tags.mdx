@@ -88,6 +88,8 @@ curl --request POST 'https://api.deepl.com/v3/voice/realtime' \
 
 The WebSocket connection itself carries no headers, so the session request is the only place a tag can be set. You cannot change or add a tag once a session is running, and you cannot tag individual audio chunks within a session. To attribute audio to more than one tag, open a separate session per tag.
 
+The tag survives [reconnection](/api-reference/voice/reconnect-session): audio streamed after you exchange a token for a new streaming URL is still attributed to the tag set on the original session request, and you do not resend the header.
+
 ---
 
 ## Tag naming guidance
