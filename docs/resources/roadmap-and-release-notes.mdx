@@ -5,8 +5,30 @@ rss: true
 ---
 
 <Update label="In active development">
-- Support for uploading, modifying, and deleting [translation memories](/docs/customize/using-translation-memories) via API
+- Editing the contents of an existing [translation memory](/docs/customize/using-translation-memories) via API
 - Usage reporting by language pair
+</Update>
+
+<Update label="August 2026">
+## August 18 - Custom Reporting Tags for the Voice API
+- [Custom reporting tags](/docs/learning-how-tos/examples-and-guides/how-to-use-custom-reporting-tags), which attribute API usage to a team, project, or other category via the `X-DeepL-Reporting-Tag` request header, now work for the [Voice API](/docs/voice/overview) in addition to text translation. Send the header on the [session request](/api-reference/voice/request-session) and the whole session's usage is attributed to that tag.
+- The [custom tag usage analytics endpoint](/api-reference/admin-api/get-custom-tag-usage-analytics) reports voice usage as `speech_to_text_minutes` and `speech_to_speech_minutes` alongside the existing character fields. Voice minutes are not included in `total_characters`.
+- A tag can only be set on the session request, since the WebSocket connection carries no headers. To attribute audio to more than one tag, open a separate session per tag.
+
+## August 11 - Translation Memory Management API
+- You can now create, inspect, export, and delete [translation memories](/docs/customize/using-translation-memories) through the API. Translation memories store previously translated segments so the same source text produces consistent output across projects. Previously, the API could only list the translation memories on your account, and everything else had to be done in the DeepL UI.
+- [`POST /v3/translation_memories/import`](/api-reference/translation-memory/import-a-translation-memory) creates a translation memory from a TMX file. The request declares the file and returns a signed upload URL plus a `job_id`; you upload the file to that URL and poll the job for the new `translation_memory_id`.
+- [`POST /v3/translation_memories/{translation_memory_id}/export`](/api-reference/translation-memory/export-a-translation-memory) exports a translation memory as TMX, also as a background job.
+- [`GET /v3/translation_memories/jobs/{job_id}`](/api-reference/translation-memory/retrieve-a-translation-memory-job) reports the status of both import and export jobs.
+- [`GET /v3/translation_memories/{translation_memory_id}`](/api-reference/translation-memory/retrieve-a-translation-memory) retrieves a single translation memory, and [`GET /v3/translation_memories/{translation_memory_id}/segments`](/api-reference/translation-memory/list-translation-memory-segments) pages through its stored segments with cursor-based pagination.
+- [`DELETE /v3/translation_memories/{translation_memory_id}`](/api-reference/translation-memory/delete-a-translation-memory) permanently deletes a translation memory and all of its segments.
+- Reading requires an API key with the `translation_memories:read` scope; importing and deleting require `translation_memories:write`. See [permission scopes](/docs/admin/permission-scopes).
+- Editing the contents of an existing translation memory is not yet supported. To change what a translation memory contains, import a new one.
+
+## August 5 - Custom Tag-Level CSV Export
+- Usage broken down by [custom reporting tag](/docs/learning-how-tos/examples-and-guides/how-to-use-custom-reporting-tags) can now be exported as a CSV report from the account UI, in addition to being available through the [custom tag usage analytics endpoint](/api-reference/admin-api/get-custom-tag-usage-analytics) in the Admin API. Custom tags attribute API usage to a team, project, or other category via the `X-DeepL-Reporting-Tag` request header.
+- The "Download CSV usage report" button on the [API Keys & Limits tab](https://www.deepl.com/your-account/keys) and the [API Usage tab](https://www.deepl.com/your-account/usage) is now a dropdown: select "Custom tag-level report" or "API key-level report".
+- See the [CSV export section of the usage data guide](/docs/admin/retrieving-usage-data#csv-export) for supported time ranges and report contents.
 </Update>
 
 <Update label="July 2026">
@@ -248,7 +270,7 @@ See [here](../getting-started/supported-languages) for the complete language lis
 - Added improvements to API glossaries, including the ability to edit glossaries and create multilingual glossaries. Learn more [here](/api-reference/multilingual-glossaries/).
 - Added new events to audit logs for Pro API customers (API key management, cost control and usage limit changes)
 - Improvements to the `/usage` endpoint for Pro API customers ([API reference](/api-reference/usage-and-quota/check-usage-and-limits))
-- Improvements to key-level usage reporting, making it possible to pull reports with a custom date range and to group data by calendar day. Learn more [here](/docs/admin/retrieving-usage-data#api-key-level-csv-export).
+- Improvements to key-level usage reporting, making it possible to pull reports with a custom date range and to group data by calendar day. Learn more in the [usage data guide](/docs/admin/retrieving-usage-data#csv-export).
 
 ## Q1 2025
 - Added support for API key-level usage limits, making it possible to set a character limit at the API key-level. Learn more [here](/docs/admin/managing-api-keys#set-a-key-level-usage-limit).

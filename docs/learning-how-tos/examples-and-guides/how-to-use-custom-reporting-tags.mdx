@@ -1,19 +1,19 @@
 ---
 title: "How to Use Custom Reporting Tags"
-description: "Learn how to attach reporting tags to translate requests so you can break down usage by team, project, or category."
+description: "Learn how to attach reporting tags to text translation and Voice API requests so you can break down usage by team, project, or category."
 public: true
 ---
 
 **This guide shows you:**
 - When to use custom reporting tags
-- How to attach a tag to a translate request via the `X-DeepL-Reporting-Tag` header
+- How to attach a tag to a text translation or Voice API request via the `X-DeepL-Reporting-Tag` header
 - Tag naming guidance and current limitations
 
 ---
 
 ## What custom reporting tags are for
 
-Custom reporting tags let your organization attribute API usage to a team, project, customer, or any other category you care about. You attach a tag to each translate request, and the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) endpoint reports usage broken down by those tags.
+Custom reporting tags let your organization attribute API usage to a team, project, customer, or any other category you care about. You attach a tag to each request, and you can then retrieve usage broken down by those tags in two ways: programmatically via the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) endpoint, or as a [custom tag-level CSV export](/docs/admin/retrieving-usage-data#csv-export) from the account UI.
 
 Common use cases:
 
@@ -23,7 +23,7 @@ Common use cases:
 Only tagged requests appear in custom-tag reports, so tag every request you want to track.
 
 <Warning>
-Custom tag data is currently supported for text translation. Support for additional request types will be added in a future update.
+Custom tag data is recorded only for text translation and Voice API requests. Support for additional request types will be added in a future update.
 </Warning>
 
 ---
@@ -56,7 +56,39 @@ curl --request POST 'https://api.deepl.com/v2/translate' \
 }
 ```
 
-The translate response is unchanged by tagging. The tag is recorded server-side and surfaces only in the custom-tag analytics endpoint.
+The translate response is unchanged by tagging. The tag is recorded server-side and surfaces only in custom-tag usage reports: the analytics endpoint and the CSV export.
+
+---
+
+## How to tag a Voice API session
+
+Set the same header on the [session request](/api-reference/voice/request-session). The tag applies to the whole session, so all audio streamed over the resulting WebSocket connection is attributed to it.
+
+```sh
+curl --request POST 'https://api.deepl.com/v3/voice/realtime' \
+--header 'Authorization: DeepL-Auth-Key [your key]' \
+--header 'X-DeepL-Reporting-Tag: team-billing' \
+--header 'Content-Type: application/json' \
+--data '{
+  "source_media_content_type": "audio/ogg;codecs=opus",
+  "source_language_mode": "auto",
+  "target_languages": ["de"]
+}'
+```
+
+**Sample response:**
+
+```json
+{
+  "streaming_url": "wss://api.deepl.com/v3/voice/realtime/connect",
+  "token": "VGhpcyBpcyBhIGZha2UgdG9rZW4K",
+  "session_id": "4f911080-cfe2-41d4-8269-0e6ec15a0354"
+}
+```
+
+The WebSocket connection itself carries no headers, so the session request is the only place a tag can be set. You cannot change or add a tag once a session is running, and you cannot tag individual audio chunks within a session. To attribute audio to more than one tag, open a separate session per tag.
+
+The tag survives [reconnection](/api-reference/voice/reconnect-session): audio streamed after you exchange a token for a new streaming URL is still attributed to the tag set on the original session request, and you do not resend the header.
 
 ---
 
@@ -86,6 +118,7 @@ Tags are a reporting feature only. You cannot use them to enforce limits, quotas
 - Tag values are limited to 100 characters. Requests with longer values are rejected with a 400 response.
 - Tag values must use ASCII characters only, with no internal whitespace and no control characters. Values like `sample tag`, `sample-tág`, or `sample\ntag` are rejected with a 400 response. Leading and trailing whitespace is trimmed before validation (see [Tag naming guidance](#tag-naming-guidance)).
 - Each request accepts one tag. Sending multiple values in the header is not supported.
+- For the Voice API, a tag covers a whole session and can only be set on the session request. See [How to tag a Voice API session](#how-to-tag-a-voice-api-session).
 - Untagged requests are not included in custom-tag analytics. They still count toward your overall usage, which you can retrieve through the [Get usage analytics](/api-reference/admin-api/get-usage-analytics) endpoint.
 
 ---
@@ -93,6 +126,6 @@ Tags are a reporting feature only. You cannot use them to enforce limits, quotas
 ## Next steps
 
 - **Use the client libraries:** See [Sending Custom Reporting Tags with Client Libraries](/docs/learning-how-tos/cookbook/sending-custom-reporting-tags-from-client-libraries) for code snippets in Python, Node.js, Java, .NET, and PHP.
-- **Query your tagged usage:** See the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) reference for date ranges, aggregation options, and pagination.
+- **Query your tagged usage:** See the [Get custom tag usage analytics](/api-reference/admin-api/get-custom-tag-usage-analytics) reference for date ranges, aggregation options, and pagination, or download a [custom tag-level CSV export](/docs/admin/retrieving-usage-data#csv-export) from the account UI.
 - **Get the bigger picture:** Read the [usage data guide](/docs/admin/retrieving-usage-data) to understand how custom-tag reporting fits alongside the other usage data sources.
 - **Explore other optional translate parameters:** Learn [how to use the context parameter](/docs/learning-how-tos/examples-and-guides/how-to-use-context-parameter) to improve translation accuracy for ambiguous content.
