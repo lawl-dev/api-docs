@@ -100,9 +100,16 @@ tags:
     which the components are applied, and a style profile can reference at most one translation memory per
     source language.
 
+    A style profile can also link one Spoken Terms collection, which is applied when the profile is used
+    for speech rather than text instead of the text-only components. A profile links at most one
+    collection: collections are deliberately small so that transcription stays fast (see
+    [Spoken Terms requirements](/docs/customize/spoken-terms-requirements)), and stacking several against
+    one profile would work against that. Manage collections with the
+    [Spoken Terms endpoints](/api-reference/spoken-terms/list-all-spoken-terms).
+
     Deleting a style profile only unlinks its components. The glossaries, style rule lists, translation
-    memories and example documents themselves are left in place and can be reused in another style
-    profile.
+    memories, example documents and Spoken Terms collection themselves are left in place and can be reused
+    in another style profile.
 - name: MetaInformation
   description: Information about API usage and value ranges
 - name: TranslationMemories
@@ -3736,6 +3743,7 @@ paths:
                       - a74d88fb-ed2a-4943-a664-a4512398b994
                       example_document_ids:
                       - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                      spoken_terms_id: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                       glossary_priority_enabled: true
                       adaptive_translation_enabled: true
                       creation_time: '2026-04-01T16:34:25.223Z'
@@ -3846,6 +3854,20 @@ paths:
                     format: uuid
                   example:
                   - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                spoken_terms_id:
+                  description: |-
+                    The ID of the Spoken Terms collection to link, applied when the style profile is used
+                    for speech rather than text. A style profile links at most one collection. Omit it to
+                    create the style profile without one. See
+                    [Improving transcription with Spoken Terms](/docs/customize/improving-transcription-with-spoken-terms).
+
+                    Requires a plan that includes DeepL Voice. Sending a `spoken_terms_id` on a plan
+                    without it is rejected with `403 Forbidden` and no style profile is created. A value
+                    that is not a valid UUID, or that names a collection your account cannot access, is
+                    rejected with `400 Bad Request` naming the field.
+                  type: string
+                  format: uuid
+                  example: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                 glossary_priority_enabled:
                   description: |-
                     Whether the glossaries linked to this style profile take priority over its other
@@ -3879,6 +3901,7 @@ paths:
                   - a74d88fb-ed2a-4943-a664-a4512398b994
                   example_document_ids:
                   - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                  spoken_terms_id: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                   glossary_priority_enabled: true
                   adaptive_translation_enabled: true
       responses:
@@ -3906,6 +3929,7 @@ paths:
                     - a74d88fb-ed2a-4943-a664-a4512398b994
                     example_document_ids:
                     - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                    spoken_terms_id: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                     glossary_priority_enabled: true
                     adaptive_translation_enabled: true
                     creation_time: '2026-04-01T16:34:25.223Z'
@@ -3914,8 +3938,9 @@ paths:
           description: |-
             The request was rejected and no style profile was created. This is returned for a malformed
             request body, for a missing or empty `name`, for a value that is longer than the field allows,
-            and for a component ID that cannot be used. An unusable ID is reported per list, so the
-            message names the list the bad ID was passed in.
+            and for a component ID that cannot be used. A component ID that is not a valid UUID, or that
+            names a component your account cannot access, is reported per field, so the message names the
+            list, or `spoken_terms_id`, that the bad ID was passed in.
           content:
             application/json:
               schema:
@@ -3935,7 +3960,8 @@ paths:
           description: |-
             Authorization failed. Please supply a valid `DeepL-Auth-Key` via the `Authorization` header.
             This error is also returned when the API key is scoped but does not include the
-            `style_profiles:write` scope, and when your plan does not include creating style profiles.
+            `style_profiles:write` scope, when your plan does not include creating style profiles, and
+            when the request sends a `spoken_terms_id` but your plan does not include DeepL Voice.
           content:
             application/json:
               schema:
@@ -3998,6 +4024,7 @@ paths:
                     - a74d88fb-ed2a-4943-a664-a4512398b994
                     example_document_ids:
                     - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                    spoken_terms_id: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                     glossary_priority_enabled: true
                     adaptive_translation_enabled: true
                     creation_time: '2026-04-01T16:34:25.223Z'
@@ -4112,6 +4139,20 @@ paths:
                     format: uuid
                   example:
                   - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+                spoken_terms_id:
+                  description: |-
+                    The ID of the Spoken Terms collection to link, applied when the style profile is used
+                    for speech rather than text. A style profile links at most one collection, so a new ID
+                    replaces the current link. Send an empty string to unlink the collection, the same way
+                    an empty string clears `description` and `industry`.
+
+                    Requires a plan that includes DeepL Voice. Sending a `spoken_terms_id` on a plan
+                    without it is rejected with `403 Forbidden` and the style profile is not changed. A
+                    value that is not a valid UUID, or that names a collection your account cannot access,
+                    is rejected with `400 Bad Request` naming the field.
+                  type: string
+                  format: uuid
+                  example: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                 glossary_priority_enabled:
                   description: |-
                     Whether the glossaries linked to this style profile take priority over its other
@@ -4141,6 +4182,10 @@ paths:
                 summary: Unlink all example documents
                 value:
                   example_document_ids: []
+              UnlinkTheSpokenTermsCollection:
+                summary: Unlink the Spoken Terms collection
+                value:
+                  spoken_terms_id: ''
       responses:
         200:
           description: Returns the updated style profile.
@@ -4166,6 +4211,7 @@ paths:
                     translation_memory_ids:
                     - a74d88fb-ed2a-4943-a664-a4512398b994
                     example_document_ids: []
+                    spoken_terms_id: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
                     glossary_priority_enabled: true
                     adaptive_translation_enabled: true
                     creation_time: '2026-04-01T16:34:25.223Z'
@@ -4174,8 +4220,9 @@ paths:
           description: |-
             The request was rejected and the style profile was not changed. This is returned for a
             malformed request body, for an empty `name`, for a value that is longer than the field allows,
-            and for a component ID that cannot be used. An unusable ID is reported per list, so the
-            message names the list the bad ID was passed in.
+            and for a component ID that cannot be used. A component ID that is not a valid UUID, or that
+            names a component your account cannot access, is reported per field, so the message names the
+            list, or `spoken_terms_id`, that the bad ID was passed in.
           content:
             application/json:
               schema:
@@ -4192,7 +4239,15 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/ForbiddenScoped'
+          description: |-
+            Authorization failed. Please supply a valid `DeepL-Auth-Key` via the `Authorization` header.
+            This error is also returned when the API key is scoped but does not include the
+            `style_profiles:write` scope, and when the request sends a `spoken_terms_id` but your plan
+            does not include DeepL Voice.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         404:
           description: |-
             The style profile could not be found. This is also returned for a style profile the account
@@ -4220,9 +4275,9 @@ paths:
         `404 Not Found` on delete, the same status as an ID that does not exist.
 
         Deleting a style profile unlinks its components rather than deleting them. The glossaries, style
-        rule lists, translation memories and example documents it referenced are left in place. Translation
-        requests that pass the deleted `style_profile_id` fail after this call, so update your integration
-        before deleting.
+        rule lists, translation memories, example documents and Spoken Terms collection it referenced are
+        left in place. Translation requests that pass the deleted `style_profile_id` fail after this call,
+        so update your integration before deleting.
 
         Requires an API key with the `style_profiles:write` scope.
       parameters:
@@ -6927,6 +6982,15 @@ components:
             format: uuid
           example:
           - 9e7b41c2-58da-4a03-b6f1-3c85e0d97a26
+        spoken_terms_id:
+          description: |-
+            The ID of the Spoken Terms collection linked to the style profile, applied when the profile is
+            used for speech rather than text. A style profile links at most one collection. Omitted from
+            the response when no collection is linked. Collections are managed with the
+            [Spoken Terms endpoints](/api-reference/spoken-terms/list-all-spoken-terms).
+          type: string
+          format: uuid
+          example: def3a26b-3e84-45b3-84ae-0c0aaf3525f7
         glossary_priority_enabled:
           description: |-
             Whether the glossaries linked to the style profile take priority over its other components.

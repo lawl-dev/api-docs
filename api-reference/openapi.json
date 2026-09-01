@@ -59,7 +59,7 @@
     },
     {
       "name": "ManageStyleProfiles",
-      "description": "The style profile functions allow you to create, inspect, edit and delete style profiles.\nA style profile bundles your other customizations, glossaries, style rule lists, translation memories\nand example documents, behind a single ID, so one `style_profile_id` stands for a whole translation\nconfiguration instead of a list of individual parameters.\n\nEvery component list is optional. A style profile can hold nothing but a name, and you can link\ncomponents to it later with a partial update. Within each list, the order of the IDs is the order in\nwhich the components are applied, and a style profile can reference at most one translation memory per\nsource language.\n\nDeleting a style profile only unlinks its components. The glossaries, style rule lists, translation\nmemories and example documents themselves are left in place and can be reused in another style\nprofile."
+      "description": "The style profile functions allow you to create, inspect, edit and delete style profiles.\nA style profile bundles your other customizations, glossaries, style rule lists, translation memories\nand example documents, behind a single ID, so one `style_profile_id` stands for a whole translation\nconfiguration instead of a list of individual parameters.\n\nEvery component list is optional. A style profile can hold nothing but a name, and you can link\ncomponents to it later with a partial update. Within each list, the order of the IDs is the order in\nwhich the components are applied, and a style profile can reference at most one translation memory per\nsource language.\n\nA style profile can also link one Spoken Terms collection, which is applied when the profile is used\nfor speech rather than text instead of the text-only components. A profile links at most one\ncollection: collections are deliberately small so that transcription stays fast (see\n[Spoken Terms requirements](/docs/customize/spoken-terms-requirements)), and stacking several against\none profile would work against that. Manage collections with the\n[Spoken Terms endpoints](/api-reference/spoken-terms/list-all-spoken-terms).\n\nDeleting a style profile only unlinks its components. The glossaries, style rule lists, translation\nmemories, example documents and Spoken Terms collection themselves are left in place and can be reused\nin another style profile."
     },
     {
       "name": "MetaInformation",
@@ -5242,6 +5242,7 @@
                           "example_document_ids": [
                             "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                           ],
+                          "spoken_terms_id": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7",
                           "glossary_priority_enabled": true,
                           "adaptive_translation_enabled": true,
                           "creation_time": "2026-04-01T16:34:25.223Z",
@@ -5368,6 +5369,12 @@
                       "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                     ]
                   },
+                  "spoken_terms_id": {
+                    "description": "The ID of the Spoken Terms collection to link, applied when the style profile is used\nfor speech rather than text. A style profile links at most one collection. Omit it to\ncreate the style profile without one. See\n[Improving transcription with Spoken Terms](/docs/customize/improving-transcription-with-spoken-terms).\n\nRequires a plan that includes DeepL Voice. Sending a `spoken_terms_id` on a plan\nwithout it is rejected with `403 Forbidden` and no style profile is created. A value\nthat is not a valid UUID, or that names a collection your account cannot access, is\nrejected with `400 Bad Request` naming the field.",
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7"
+                  },
                   "glossary_priority_enabled": {
                     "description": "Whether the glossaries linked to this style profile take priority over its other\ncomponents. Defaults to `false`.",
                     "type": "boolean",
@@ -5407,6 +5414,7 @@
                     "example_document_ids": [
                       "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                     ],
+                    "spoken_terms_id": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7",
                     "glossary_priority_enabled": true,
                     "adaptive_translation_enabled": true
                   }
@@ -5447,6 +5455,7 @@
                       "example_document_ids": [
                         "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                       ],
+                      "spoken_terms_id": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7",
                       "glossary_priority_enabled": true,
                       "adaptive_translation_enabled": true,
                       "creation_time": "2026-04-01T16:34:25.223Z",
@@ -5458,7 +5467,7 @@
             }
           },
           "400": {
-            "description": "The request was rejected and no style profile was created. This is returned for a malformed\nrequest body, for a missing or empty `name`, for a value that is longer than the field allows,\nand for a component ID that cannot be used. An unusable ID is reported per list, so the\nmessage names the list the bad ID was passed in.",
+            "description": "The request was rejected and no style profile was created. This is returned for a malformed\nrequest body, for a missing or empty `name`, for a value that is longer than the field allows,\nand for a component ID that cannot be used. A component ID that is not a valid UUID, or that\nnames a component your account cannot access, is reported per field, so the message names the\nlist, or `spoken_terms_id`, that the bad ID was passed in.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5485,7 +5494,7 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "description": "Authorization failed. Please supply a valid `DeepL-Auth-Key` via the `Authorization` header.\nThis error is also returned when the API key is scoped but does not include the\n`style_profiles:write` scope, and when your plan does not include creating style profiles.",
+            "description": "Authorization failed. Please supply a valid `DeepL-Auth-Key` via the `Authorization` header.\nThis error is also returned when the API key is scoped but does not include the\n`style_profiles:write` scope, when your plan does not include creating style profiles, and\nwhen the request sends a `spoken_terms_id` but your plan does not include DeepL Voice.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5572,6 +5581,7 @@
                       "example_document_ids": [
                         "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                       ],
+                      "spoken_terms_id": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7",
                       "glossary_priority_enabled": true,
                       "adaptive_translation_enabled": true,
                       "creation_time": "2026-04-01T16:34:25.223Z",
@@ -5701,6 +5711,12 @@
                       "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
                     ]
                   },
+                  "spoken_terms_id": {
+                    "description": "The ID of the Spoken Terms collection to link, applied when the style profile is used\nfor speech rather than text. A style profile links at most one collection, so a new ID\nreplaces the current link. Send an empty string to unlink the collection, the same way\nan empty string clears `description` and `industry`.\n\nRequires a plan that includes DeepL Voice. Sending a `spoken_terms_id` on a plan\nwithout it is rejected with `403 Forbidden` and the style profile is not changed. A\nvalue that is not a valid UUID, or that names a collection your account cannot access,\nis rejected with `400 Bad Request` naming the field.",
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7"
+                  },
                   "glossary_priority_enabled": {
                     "description": "Whether the glossaries linked to this style profile take priority over its other\ncomponents.",
                     "type": "boolean",
@@ -5740,6 +5756,12 @@
                   "value": {
                     "example_document_ids": []
                   }
+                },
+                "UnlinkTheSpokenTermsCollection": {
+                  "summary": "Unlink the Spoken Terms collection",
+                  "value": {
+                    "spoken_terms_id": ""
+                  }
                 }
               }
             }
@@ -5776,6 +5798,7 @@
                         "a74d88fb-ed2a-4943-a664-a4512398b994"
                       ],
                       "example_document_ids": [],
+                      "spoken_terms_id": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7",
                       "glossary_priority_enabled": true,
                       "adaptive_translation_enabled": true,
                       "creation_time": "2026-04-01T16:34:25.223Z",
@@ -5787,7 +5810,7 @@
             }
           },
           "400": {
-            "description": "The request was rejected and the style profile was not changed. This is returned for a\nmalformed request body, for an empty `name`, for a value that is longer than the field allows,\nand for a component ID that cannot be used. An unusable ID is reported per list, so the\nmessage names the list the bad ID was passed in.",
+            "description": "The request was rejected and the style profile was not changed. This is returned for a\nmalformed request body, for an empty `name`, for a value that is longer than the field allows,\nand for a component ID that cannot be used. A component ID that is not a valid UUID, or that\nnames a component your account cannot access, is reported per field, so the message names the\nlist, or `spoken_terms_id`, that the bad ID was passed in.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5814,7 +5837,14 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/ForbiddenScoped"
+            "description": "Authorization failed. Please supply a valid `DeepL-Auth-Key` via the `Authorization` header.\nThis error is also returned when the API key is scoped but does not include the\n`style_profiles:write` scope, and when the request sends a `spoken_terms_id` but your plan\ndoes not include DeepL Voice.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
             "description": "The style profile could not be found. This is also returned for a style profile the account\ncannot see, so a `404` does not confirm that the ID is unused.",
@@ -5848,7 +5878,7 @@
         ],
         "summary": "Delete a style profile",
         "operationId": "deleteStyleProfile",
-        "description": "Delete a style profile. Only the account that owns a style profile can delete it. A style profile\nthat was shared with your account, and that you can therefore list and retrieve, returns\n`404 Not Found` on delete, the same status as an ID that does not exist.\n\nDeleting a style profile unlinks its components rather than deleting them. The glossaries, style\nrule lists, translation memories and example documents it referenced are left in place. Translation\nrequests that pass the deleted `style_profile_id` fail after this call, so update your integration\nbefore deleting.\n\nRequires an API key with the `style_profiles:write` scope.",
+        "description": "Delete a style profile. Only the account that owns a style profile can delete it. A style profile\nthat was shared with your account, and that you can therefore list and retrieve, returns\n`404 Not Found` on delete, the same status as an ID that does not exist.\n\nDeleting a style profile unlinks its components rather than deleting them. The glossaries, style\nrule lists, translation memories, example documents and Spoken Terms collection it referenced are\nleft in place. Translation requests that pass the deleted `style_profile_id` fail after this call,\nso update your integration before deleting.\n\nRequires an API key with the `style_profiles:write` scope.",
         "parameters": [
           {
             "name": "style_profile_id",
@@ -9576,6 +9606,12 @@
             "example": [
               "9e7b41c2-58da-4a03-b6f1-3c85e0d97a26"
             ]
+          },
+          "spoken_terms_id": {
+            "description": "The ID of the Spoken Terms collection linked to the style profile, applied when the profile is\nused for speech rather than text. A style profile links at most one collection. Omitted from\nthe response when no collection is linked. Collections are managed with the\n[Spoken Terms endpoints](/api-reference/spoken-terms/list-all-spoken-terms).",
+            "type": "string",
+            "format": "uuid",
+            "example": "def3a26b-3e84-45b3-84ae-0c0aaf3525f7"
           },
           "glossary_priority_enabled": {
             "description": "Whether the glossaries linked to the style profile take priority over its other components.",
