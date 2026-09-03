@@ -5337,7 +5337,7 @@
                     ]
                   },
                   "style_rule_ids": {
-                    "description": "The IDs of the style rule lists to link, in the order they should be applied. Defaults\nto an empty list.",
+                    "description": "The IDs of the style rule lists to link, in the order they should be applied. At\nmost one style rule list per target language. Defaults to an empty list.",
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -5679,7 +5679,7 @@
                     ]
                   },
                   "style_rule_ids": {
-                    "description": "The IDs of the style rule lists to link, in the order they should be applied. Replaces\nthe linked style rule lists in full. Send an empty list to unlink all of them.",
+                    "description": "The IDs of the style rule lists to link, in the order they should be applied. At\nmost one style rule list per target language. Replaces the linked style rule\nlists in full. Send an empty list to unlink all of them.",
                     "type": "array",
                     "items": {
                       "type": "string",

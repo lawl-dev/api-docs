@@ -3826,8 +3826,8 @@ paths:
                   - 4d0a2e1c-6b93-4f7a-8d15-2c6e9a3b7f81
                 style_rule_ids:
                   description: |-
-                    The IDs of the style rule lists to link, in the order they should be applied. Defaults
-                    to an empty list.
+                    The IDs of the style rule lists to link, in the order they should be applied. At
+                    most one style rule list per target language. Defaults to an empty list.
                   type: array
                   items:
                     type: string
@@ -4109,8 +4109,9 @@ paths:
                   - 4d0a2e1c-6b93-4f7a-8d15-2c6e9a3b7f81
                 style_rule_ids:
                   description: |-
-                    The IDs of the style rule lists to link, in the order they should be applied. Replaces
-                    the linked style rule lists in full. Send an empty list to unlink all of them.
+                    The IDs of the style rule lists to link, in the order they should be applied. At
+                    most one style rule list per target language. Replaces the linked style rule
+                    lists in full. Send an empty list to unlink all of them.
                   type: array
                   items:
                     type: string
